@@ -1,5 +1,6 @@
 import './App.css';
 import React, { Component } from 'react';
+import moment from '../node_modules/moment';
 
 
 const initialSessionLength = 25;
@@ -11,7 +12,7 @@ export default class App extends Component {
       breakLength: 5,
       sessionLength: initialSessionLength,
       timerRunning: false,
-      time: initialSessionLength * 60
+      time: initialSessionLength * 60 * 1000
     }
   }
 
@@ -32,7 +33,7 @@ export default class App extends Component {
     const { sessionLength, time } = this.state;
     this.setState({
       sessionLength: sessionLength <= 59 ? (sessionLength + 1) : 60,
-      time: time + 60
+      time: time + 60 * 1000
     })
   }
 
@@ -40,7 +41,7 @@ export default class App extends Component {
     const { sessionLength, time } = this.state;
     this.setState({
       sessionLength: sessionLength >= 2 ? (sessionLength - 1) : 1,
-      time: time > 0 ? time - 60 : time
+      time: time > 0 ? (sessionLength * 60 * 1000) - 60 * 1000 : (sessionLength * 60 * 1000)
     })
   }
   resetTimer() {
@@ -48,25 +49,23 @@ export default class App extends Component {
       breakLength: 5,
       sessionLength: 25,
       timerRunning: false,
-      time: 25 * 60
+      time: 25 * 60 * 1000
     })
     clearInterval(this.intervalID);
   }
 
-  toggleTimer() {
+  tick = () => {
     let { time } = this.state
+    this.setState({ time: time > 0 ? time - 1000 : time })
+  }
+
+  toggleTimer() {
     this.setState({ timerRunning: !this.state.timerRunning });
     if (!this.state.timerRunning) {
-      this.intervalID = setInterval(
-        () => {
-          if (this.state.time > 0) {
-            this.setState({ time: time-- })
-            this.forceUpdate();
-          }
-        }, 1000)
+      this.intervalID = setInterval(this.tick, 1000)
     } else {
       console.clear();
-      clearInterval(this.intervalID);
+      clearInterval(this.intervalID)
     }
   }
   render() {
@@ -90,7 +89,7 @@ export default class App extends Component {
         </div>
         <div id="timer">
           <h2 id="timer-label">Session</h2>
-          <h1 id="time-left"> {(this.state.time / 60) < 10 ? `0${Math.floor(this.state.time / 60)}` : Math.floor(this.state.time / 60)}:{(this.state.time % 60) < 10 ? `0${Math.floor(this.state.time % 60)}` : Math.floor(this.state.time % 60)} </h1>
+          <h1 id="time-left"> {moment(this.state.time).format('mm:ss')} </h1>
         </div>
         <div id="controls">
           <button id="start_stop" onClick={() => { this.toggleTimer() }}>Start/Stop</button>
