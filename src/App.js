@@ -54,6 +54,8 @@ export default class App extends Component {
       activeTimer: 'Session'
     })
     clearInterval(this.intervalID);
+    this.audioBeep.pause()
+    this.audioBeep.currentTime = 0
   }
 
   tick = () => {
@@ -61,6 +63,7 @@ export default class App extends Component {
     this.setState({ time: time - 1000 })
     if (this.state.time < 0) {
       this.toggleSessionBreak()
+      this.audioBeep.play()
     }
   }
 
@@ -87,6 +90,7 @@ export default class App extends Component {
       clearInterval(this.intervalID)
     }
   }
+
   render() {
     return (
       <div id="pomodoro-clock">
@@ -114,6 +118,8 @@ export default class App extends Component {
           <button id="start_stop" onClick={() => { this.toggleTimer() }}>Start/Stop</button>
           <button id="reset" onClick={() => { this.resetTimer() }} >Reset</button>
         </div>
+        <audio id="beep" preload="auto" src="https://goo.gl/65cBl1"
+          ref={(audio) => { this.audioBeep = audio; }}></audio>
       </div>
     )
   }
