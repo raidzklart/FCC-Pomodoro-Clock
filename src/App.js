@@ -12,7 +12,8 @@ export default class App extends Component {
       breakLength: 5,
       sessionLength: initialSessionLength,
       timerRunning: false,
-      time: initialSessionLength * 60 * 1000
+      time: initialSessionLength * 60 * 1000,
+      activeTimer: 'Session'
     }
   }
 
@@ -41,7 +42,7 @@ export default class App extends Component {
     const { sessionLength, time } = this.state;
     this.setState({
       sessionLength: sessionLength >= 2 ? (sessionLength - 1) : 1,
-      time: time > 0 ? (sessionLength * 60 * 1000) - 60 * 1000 : (sessionLength * 60 * 1000)
+      time: time > 60 * 1000 ? (sessionLength * 60 * 1000) - 60 * 1000 : (sessionLength * 60 * 1000)
     })
   }
   resetTimer() {
@@ -49,14 +50,33 @@ export default class App extends Component {
       breakLength: 5,
       sessionLength: 25,
       timerRunning: false,
-      time: 25 * 60 * 1000
+      time: 25 * 60 * 1000,
+      activeTimer: 'Session'
     })
     clearInterval(this.intervalID);
   }
 
   tick = () => {
     let { time } = this.state
-    this.setState({ time: time > 0 ? time - 1000 : time })
+    this.setState({ time: time - 1000 })
+    if (this.state.time < 0) {
+      this.toggleSessionBreak()
+    }
+  }
+
+  toggleSessionBreak() {
+    const { breakLength, sessionLength } = this.state
+    if (this.state.activeTimer === 'Session') {
+      this.setState({
+        activeTimer: 'Break',
+        time: breakLength * 60 * 1000
+      })
+    } else {
+      this.setState({
+        activeTimer: 'Session',
+        time: sessionLength * 60 * 1000
+      })
+    }
   }
 
   toggleTimer() {
@@ -64,7 +84,6 @@ export default class App extends Component {
     if (!this.state.timerRunning) {
       this.intervalID = setInterval(this.tick, 1000)
     } else {
-      console.clear();
       clearInterval(this.intervalID)
     }
   }
@@ -88,7 +107,7 @@ export default class App extends Component {
           </div>
         </div>
         <div id="timer">
-          <h2 id="timer-label">Session</h2>
+          <h2 id="timer-label">{this.state.activeTimer}</h2>
           <h1 id="time-left"> {moment(this.state.time).format('mm:ss')} </h1>
         </div>
         <div id="controls">
