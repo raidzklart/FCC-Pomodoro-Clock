@@ -93,3 +93,19 @@
     color: #F8F8FF;
     border-radius: 5px;
 }
+
+@media only screen and (max-width: 1024px) {
+    #pomodoro-clock {
+        width: 70vw;
+    }
+}
+
+@media only screen and (max-width: 512px) {
+    #pomodoro-clock {
+        width: 90vw;
+    }
+
+    .timer-controls button {
+        margin: 5px;
+    }
+}
